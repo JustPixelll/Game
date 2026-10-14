@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
+<meta name="theme-color" content="#304e42"><meta name="description" content="An original offline guild-town tycoon. Build somewhere worth coming back to.">
+<title>Bramblehaven — Guild & Grove</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+ <header class="topbar">
+  <button class="brand" data-action="settings" aria-label="Town settings"><span class="brand-mark" id="brand-mark"></span><span><strong id="town-name">Bramblehaven</strong><small>GUILD &amp; GROVE <span class="version">v1.0.0</span></small></span></button>
+  <div class="top-controls"><div id="clock" class="clock"></div><button id="speed" class="speed" data-action="speed" aria-label="Change game speed">1×</button><button class="icon-button settings-button" data-action="settings" aria-label="Settings" id="settings-icon"></button></div>
+ </header>
+ <div id="resources" class="resources" aria-label="Town resources"></div>
+ <main class="game-layout">
+  <section class="world-wrap" aria-label="Your town">
+   <canvas id="world" tabindex="0" aria-label="Isometric town map. Drag to pan, pinch or use the zoom buttons to zoom. Select a blueprint then tap an empty claimed plot to build. Arrow keys move the plot cursor; Enter selects."></canvas>
+   <div class="world-shade"></div>
+   <div class="world-top"><div id="town-rank" class="town-rank"></div><button class="map-button" data-action="expand" id="expand-map" title="Expand your town"></button></div>
+   <div id="placement" class="placement hidden"></div>
+   <div id="quest-peek" class="quest-peek"></div>
+   <div class="map-tools"><button data-action="zoomout" aria-label="Zoom out" title="Zoom out">−</button><button data-action="zoomin" aria-label="Zoom in" title="Zoom in">+</button><button data-action="center" aria-label="Centre town" id="center-icon" title="Centre town"></button><button data-action="roads" aria-label="Show road connectivity" id="roads-icon" title="Show road connectivity"></button></div>
+   <span class="map-hint">Drag to wander · Pinch to zoom</span>
+  </section>
+  <aside class="sidebar" aria-label="Town management"><nav id="tabs" class="tabs" aria-label="Game sections"></nav><div id="panel" class="panel"></div></aside>
+ </main>
+</div>
+<div id="toasts" class="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+<div id="modal-root"></div><div id="intro-root"></div>
+<input type="file" id="import-file" accept="application/json,.json" hidden>
+<noscript>Bramblehaven needs JavaScript to run its local simulation. No account or internet connection is needed for the bundled game.</noscript>
+<script src="content.js"></script><script src="engine.js"></script><script src="art.js"></script><script src="app.js"></script>
+</body></html>

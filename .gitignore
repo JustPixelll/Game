@@ -1,0 +1,13 @@
+# Generated outputs and private signing material
+build/
+dist/
+*.apk
+*.aab
+*.jks
+*.keystore
+*.p12
+*.pem
+.env
+.env.*
+__pycache__/
+.DS_Store
