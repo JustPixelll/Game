@@ -1,0 +1,93 @@
+name: Build Bramblehaven
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: bramblehaven-main
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish verified readable source (first run only)
+        if: hashFiles('.bootstrap/*.b64') != ''
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, json, lzma
+          from pathlib import Path, PurePosixPath
+          parts = sorted(Path('.bootstrap').glob('*.b64'))
+          assert [p.name for p in parts] == [f'{n:02}.b64' for n in range(12)]
+          packed = base64.b64decode(''.join(p.read_text().strip() for p in parts), validate=True)
+          assert hashlib.sha256(packed).hexdigest() == '6efdc07c0635a106917d8cbe1fcd2b3b67da58821f112a755cba7db81c9b6771'
+          files = json.loads(lzma.decompress(packed, memlimit=256*1024*1024))
+          assert isinstance(files, dict) and len(files) == 23
+          root_files = {'.gitignore','CHANGELOG.md','LICENSE','README.md'}
+          for name, text in files.items():
+              p = PurePosixPath(name)
+              assert not p.is_absolute() and '..' not in p.parts and '\\' not in name
+              assert name in root_files or p.parts[0] in {'web','android','scripts','tests'}
+              assert isinstance(text, str) and len(text) < 150000
+              Path(name).parent.mkdir(parents=True, exist_ok=True)
+              Path(name).write_text(text, encoding='utf-8')
+          for p in parts: p.unlink()
+          Path('.bootstrap').rmdir()
+          print('Verified and published 23 readable source files.')
+          PY
+          python3 scripts/make-icons.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Publish Bramblehaven v1.0.0: game, Android shell, tests and documentation'
+          git push origin HEAD:main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Engine and ordinary-play progression tests
+        shell: bash
+        run: |
+          mkdir -p dist
+          node --test tests/engine.test.cjs | tee dist/engine-tests.txt
+          node scripts/opening-check.cjs | tee dist/opening-test.txt
+          python3 scripts/make-icons.py
+          python3 scripts/bundle.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Android SDK components
+        shell: bash
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build unsigned Android package
+        shell: bash
+        run: bash scripts/build-android.sh 2>&1 | tee dist/android-build.txt
+      - name: Upload Android package and signing tool
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bramblehaven-android-unsigned
+          path: dist/android/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Install browser test tools
+        run: |
+          python3 -m pip install playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+      - name: Browser interaction tests
+        run: python3 tests/ui_smoke.py | tee dist/ui-tests.txt
+      - name: Upload portable game and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bramblehaven-web-and-tests
+          path: |
+            dist/*.html
+            dist/*.png
+            dist/*.txt
+          if-no-files-found: warn
+          retention-days: 30
