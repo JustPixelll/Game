@@ -14,7 +14,7 @@ mkdir -p build/android/{gen,classes,dex} dist/android
 B="$PWD/build/android"
 "$BT/aapt2" compile --dir android/res -o "$B/resources.zip"
 "$BT/aapt2" link -o "$B/base.apk" -I "$SDK/platforms/android-35/android.jar" \
- --manifest android/AndroidManifest.xml -R "$B/resources.zip" -A web --java "$B/gen"
+ --manifest android/AndroidManifest.xml "$B/resources.zip" -A web --java "$B/gen"
 find android/src "$B/gen" -name '*.java' -print > "$B/sources.txt"
 javac -encoding UTF-8 -source 8 -target 8 -classpath "$SDK/platforms/android-35/android.jar" \
  -d "$B/classes" @"$B/sources.txt"
