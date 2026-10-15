@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: bramblehaven-main
   cancel-in-progress: false
@@ -14,51 +14,6 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Publish verified Frontier v2 source (first run only)
-        if: hashFiles('.bootstrap/*.b64') != ''
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import base64, hashlib, json, lzma
-          from pathlib import Path
-          parts = sorted(Path('.bootstrap').glob('*.b64'))
-          assert [p.name for p in parts] == [f'{n:02}.b64' for n in range(11)], 'Unexpected transport files'
-          packed = base64.b64decode(''.join(p.read_text().strip() for p in parts), validate=True)
-          assert hashlib.sha256(packed).hexdigest() == '7b8cc3fdea741da0d97d8447092a77427aea566aa6ff6d1499ec5f1d856087b5', 'Transport checksum'
-          raw = lzma.decompress(packed, memlimit=256*1024*1024)
-          assert len(raw) < 1000000
-          files = json.loads(raw)
-          allowed = {'CHANGELOG.md','README.md','android/AndroidManifest.xml','scripts/build-android.sh','scripts/campaign-check.cjs','scripts/opening-check.cjs','tests/engine.test.cjs','tests/fixtures/v1-completed.json','tests/ui_smoke.py','web/app.js','web/art.js','web/content.js','web/engine.js','web/index.html','web/style.css','web/sw.js'}
-          assert set(files) == allowed
-          pending = {}
-          for name, entry in files.items():
-              path = Path(name)
-              old = path.read_bytes() if path.exists() else b''
-              assert hashlib.sha256(old).hexdigest() == entry['base'], 'Base mismatch: '+name
-              lines = old.decode('utf-8').splitlines(keepends=True)
-              last = 0
-              for start, end, text in entry['changes']:
-                  assert type(start) is int and type(end) is int and isinstance(text, str)
-                  assert last <= start <= end <= len(lines)
-                  last = end
-              for start, end, text in reversed(entry['changes']):
-                  lines[start:end] = [text]
-              new = ''.join(lines).encode('utf-8')
-              assert hashlib.sha256(new).hexdigest() == entry['result'], 'Result mismatch: '+name
-              pending[path] = new
-          for path, data in pending.items():
-              path.parent.mkdir(parents=True, exist_ok=True)
-              path.write_bytes(data)
-          for p in parts:
-              p.unlink()
-          Path('.bootstrap').rmdir()
-          print('Verified and published all 16 exact tested v2 source files.')
-          PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Publish Bramblehaven v2.0.0: Frontier economy, expedition strategy and precise planning'
-          git push origin HEAD:main
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
