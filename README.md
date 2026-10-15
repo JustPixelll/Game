@@ -1,77 +1,106 @@
 # Bramblehaven · Guild & Grove
 
-An original, offline guild-town tycoon made for JustPixelll. Build a little frontier town, make its production chains work, send adventurers into the wilderness, and collect the things they bring home. Version **1.0.0**.
+An original offline guild-town tycoon made for JustPixelll. **Version 2.0.0: Frontier.**
 
-## Play
+Build a productive town, prepare an adventuring guild, and earn the next road. This update addresses the first player's completed v1 playthrough: awkward placement, overflowing stores, nearly automatic expeditions, and a relic lottery after everything else was unlocked.
 
-Open `dist/Bramblehaven.html` in a current desktop browser, or install the separately supplied **signed Android APK**. The browser edition can also be served from `web/` using any static HTTPS host, with no backend. No account, advertising, analytics, purchases, downloaded assets, or network permissions in the Android app.
+## Play and update
 
-Start by founding your town and following the gold **Town charter** card. Your first lumber camp and smallholding open the way to a guild. Stone paths are free. Tap buildings to inspect their production, upgrade, move, pause, or dismantle them. A disconnected workplace still runs, but less efficiently. Expedition decisions are optional; rewards are awarded once, even when you are away. Try 2× speed once you have your bearings.
+Install the separately supplied **signed** Android APK over the old application, without uninstalling. Export an important town from Settings first. The application ID and signing certificate must match the old release to update in place.
 
-### What is in this build
+The portable browser edition is `dist/Bramblehaven.html`; open it in a current desktop browser. `web/` can also be served by a static HTTPS host. No account, advertising, analytics, purchases or external assets. The Android shell has no network permission and does not download updates.
 
-- An animated, pannable/zoomable isometric island with **23 building types** (including the hearth and free paths), six land expansions, production chains, staffing, happiness, seasons, and four upgrade levels; research opens level five.
-- **12 discoverable neighbourhood combinations**, **14 research projects**, trade, repeatable contracts, and visiting events.
-- **8 recruitable adventurers**, party composition and regional talents, training, five equipment tiers, three expedition approaches, optional route decisions, and **7 regions with 4 landmarks each**.
-- **21 collectible relics**, a museum that benefits from discoveries, **29 achievements**, and **15 main charter chapters** with an ending and optional legacy towns. Legacy retains relics and grants a capped permanent production bonus.
-- Synthesized optional music and sound effects. Original code-drawn buildings, portraits, moving residents, weather, and day/night effects. No external art or font dependency.
-- Autosave, previous-save recovery, checksummed JSON backups, confirmation before import/reset, offline progress capped at two real hours at half simulation speed. Pause disables away progression.
+**Your v1 town is preserved, not reset.** Existing resources, buildings, heroes, levels, equipment, research, relics, achievements and charter progress migrate. Production then follows v2 rules. A rich completed town is not representative of a fresh Frontier campaign.
 
-## Controls
+For the new challenge, use **Settings → Start a fresh Frontier campaign**. This asks for `NEW`, archives the retiring town locally, and starts without carried wealth or discoveries. **Settings → Town archives** can restore the original v1 snapshot or the last retired town, with confirmation. Storage failures are reported; a failed retirement archive prevents replacement. These local copies do not survive clearing app data or uninstalling: keep JSON exports too.
 
-Phone: tap plots or buttons, drag the map, pinch to zoom. The map remains above the management panel. Desktop: drag/pinch/wheel, use `1`–`5` for tabs, Escape to cancel/close, and Space to pause when no input is focused. The map also has explicit zoom and centre controls.
+## What changed
 
-## Saves and updates
+### Build deliberately
 
-Saves are local to this browser profile or Android installation. **Export a backup from Settings before uninstalling, clearing application/browser data, changing devices, or replacing an APK.** Exported JSON is interchangeable between the two editions. Import is validated and asks before replacing a town. A checksum detects accidental damage; it is not anti-cheat or encryption.
+Choose a blueprint, tap a diamond to preview it, then **Confirm build**. Nothing is spent on the initial tap. The four diagonal nudge buttons move the draft by one tile. Drag to pan; pinch, wheel or use the zoom buttons. Relocation is free and preserves level/priority.
 
-Android uses a stable application ID (`net.justpixelll.bramblehaven`). Installing a higher-version APK signed with the **same private key** preserves the installation's save. A different signing key will not update it in place. Keep the separately supplied private signing backup confidential and outside this public repository. Never commit a keystore or password. The checked-in pipeline builds an **unsigned** APK by default. It is not an installable release until signed.
+Plan view replaces tall roofs with named footprints, levels and connection information. It turns on during construction and can also be toggled explicitly. The blueprint preview shows staffing, roads, terrain, active neighbourhood combinations and the change in net resource flow. Cyan outlines show potential neighbours, not guaranteed active bonuses.
 
-The hosted HTTPS web edition includes a versioned service worker. It offers a ready update in Settings instead of silently reloading mid-game. The portable HTML and bundled Android edition do not fetch web updates.
+All building art uses a consistent `(48, 88)` ground anchor. Moving residents and buildings share depth order; selection uses actual sprite pixels.
 
-## Source layout
+### Make supplies and workers count
 
-```
-web/content.js       Buildings, heroes, regions, relics, research, objectives
-web/engine.js        Deterministic simulation; no DOM, network, or timers
-web/art.js           Original canvas art, portraits, map renderer and input
-web/app.js           Interface, sounds, save handling and lifecycle
-web/style.css        Responsive desktop/phone interface
-web/sw.js            Explicit, versioned offline web updates
-android/             Permission-free native WebView + Android document picker
-scripts/bundle.py    Produce one portable HTML from the same sources
-scripts/build-android.sh  Compile without Gradle or runtime dependencies
-tests/               Engine regression suite and browser interaction checks
-```
+Every workplace draws from one finite workforce. Priorities allocate hands; pausing frees them. Extra buildings do not create workers. Housing adds workers but increases food consumption. Upgrades require more hands and inputs.
+
+A continuous edge-connected path to the hearth is necessary for production. Terrain and active neighbourhood combinations improve output **without** increasing inputs. Both neighbours must be connected, unpaused and at least half staffed. A good arrangement saves labour and materials rather than merely making already-full stores fill faster.
+
+The Ledger shows actual current rates, worker allocation and reserves. Food reserves protect stock from workshops/shops, but residents still eat. Explicit expedition departures, construction and trade spend the stock shown in their costs. Outdoor farms yield less in winter; rain helps. Early shortages can be relieved by a safe local gathering trip.
+
+Gold finances wages, upkeep, buildings, training, research and repairs. Wood and ore feed the forge; gear is spent on equipment tiers, repairs, advanced buildings and later journeys. Insight is needed for research, briefings and stardust production. The merchant only carries a limited dawn-restocked supply of basic materials; advanced goods cannot be bought.
+
+Storage starts at 160 per material (gold excluded). An unpaused storehouse adds 180 plus 60 per upgrade level. Existing over-cap stock is kept, but new output cannot increase it. A physically full workshop stops consuming inputs and remains eligible for equipment/research interactions when otherwise operational.
+
+### Prepare for the frontier
+
+Every next region requires the previous guardian. Victories unlock land permits, research, higher gear tiers and level caps. Merely accumulating crowns cannot bypass those gates. Party size remains one to three; research adds concurrent expedition slots, not extra people in one party.
+
+Regional expertise counters terrain hazards. Protection helps on guardian encounters. Level, equipment tier, equipment condition, regional talents, research, approach and supplies affect the preview. Every party member must meet the route's equipment requirement. A minimum party-power check prevents hopeless attempts; Bold needs a power advantage.
+
+Provisioning is separate from approach: **Light / Standard / Well supplied** changes food/spare-gear spending, odds and wear. **Careful / Steady / Bold** changes odds, duration, loot and wear. Bold is not a free upgrade: its success ceiling is 88%. Optional route decisions can make further trade-offs. The very first Steady scouting journey with normal or better supplies is guided; later trips are not guaranteed.
+
+Wear reduces equipment power. Repairs restore it for a material cost. Retreat costs supplies and extra condition, but does not kill a character. Local gathering is free and safe, even with broken equipment; it grants basic supplies, not expedition progress or XP.
+
+First clears of landmarks one, three and the guardian guarantee that region's three relics. Already-cleared regions can be surveyed for a specified missing relic using a staffed museum and extra insight. Return journeys do not repay first-clear progression rewards. The final guardian requires an operating Wayhome beacon.
+
+## Included content
+
+23 building types, 6 land expansions, 12 neighbourhood combinations, 14 research projects, 8 adventurers, 7 regions with 4 landmarks each, 21 relics, 29 achievements and 15 main charter chapters. Optional legacy towns retain relics and grant a capped production bonus. Original code-drawn art, generated optional audio, local autosaves, previous-save recovery and portable checksummed JSON backups.
+
+Only **Pause / Resume** are available. No fast-forward. A day lasts 120 real seconds at normal speed. Away progress is capped at ten real minutes; a paused town stays paused. Existing missions can finish, but no new missions start by themselves.
 
 ## Build and test
 
-Node 22+, Python 3.11+, and a recent Chromium are used for development. The shipped browser game has no package install step.
+Runtime: no package dependencies. Development: Node 22+, Python 3.11+, Chromium/Playwright. Android: JDK 21 and SDK platform 35/build-tools 35.0.0.
 
 ```sh
 node --test tests/engine.test.cjs
-python scripts/bundle.py
-python -m http.server 8765 --directory web
-# Open http://localhost:8765 on your own computer.
+node scripts/opening-check.cjs
+node scripts/campaign-check.cjs
+python3 scripts/make-icons.py
+python3 scripts/bundle.py
+python3 tests/ui_smoke.py
+bash scripts/build-android.sh
 ```
 
-The UI test uses Playwright (`pip install playwright`; `playwright install chromium`). Set `CHROMIUM_PATH` to a specific executable if necessary. Run `python tests/ui_smoke.py` after bundling. It loads the portable HTML into a real Chromium page, with an in-memory localStorage shim because the original test environment blocked URL navigation. Engine tests independently verify serialization and corruption recovery. This smoke test is not a physical-device or browser-restart persistence test.
+The full campaign script advances simulation time and uses ordinary game actions. It does not grant resources, levels, research or victories. It is a deterministic feasibility policy, **not** an estimate of human completion time, optimal strategy, or a substitute for human balancing. The engine suite uses explicit rich fixtures only to isolate mechanics.
 
-To build Android, install JDK 21 and Android SDK platform 35/build-tools 35.0.0, set `ANDROID_HOME`, then run `bash scripts/build-android.sh`. The GitHub Actions workflow does this and preserves unsigned build artifacts. It also emits the SDK's `apksigner.jar`, so the owner can sign the APK privately. The private key is deliberately not created inside a public CI log or committed to the repo.
+The UI suite tests five viewports (390×844, 360×740, 1440×960, 844×390 and 1340×1000), actual pointer interactions, confirmation, dragging, nudging, modal controls and save migration. It uses `set_content` and an in-memory localStorage shim. It is **not** a physical-phone, browser-restart or Android-document-picker persistence test. `CHROMIUM_PATH` can select an installed browser executable. CI installs Playwright and Chromium.
+
+The migration fixture is synthetic and produced with the actual v1 engine; it is not the player's personal save.
+
+## Source layout
+
+- `web/content.js`: content, progression gates and tuning data.
+- `web/engine.js`: deterministic simulation, transactions and save migration.
+- `web/art.js`: sprite projection, depth order, hit-testing and camera input.
+- `web/app.js`, `web/style.css`, `web/index.html`: interface, save handling and lifecycle.
+- `android/`: permission-free native WebView with document-picker export/import.
+- `scripts/`: bundling, icon generation, Android compilation and ordinary-action checks.
+- `tests/`: regression tests and browser checks.
+
+## Android signing
+
+The pipeline builds an **unsigned** APK and emits the Android SDK's `apksigner.jar`. Unsigned APKs are not installable releases. Sign privately using the original key; **never put a keystore or its password into this public repository**.
 
 ```sh
 java -jar apksigner.jar sign --ks /PRIVATE/bramblehaven.keystore \
-  --ks-key-alias bramblehaven --out Bramblehaven-v1.0.0.apk \
-  Bramblehaven-v1.0.0-unsigned.apk
-java -jar apksigner.jar verify --verbose --print-certs Bramblehaven-v1.0.0.apk
+  --ks-key-alias bramblehaven --out Bramblehaven-v2.0.0.apk \
+  Bramblehaven-v2.0.0-unsigned.apk
+java -jar apksigner.jar verify --verbose --print-certs Bramblehaven-v2.0.0.apk
 ```
 
-Signing prompts for the secret password. For future versions, bump the Android manifest's versionCode/versionName, the game version, and the web cache version together; update artifact filenames in the build script/workflow. Saves use a separate schema version.
+The application ID remains `net.justpixelll.bramblehaven`, with versionCode `20000`. Signing prompts for the password. Verify that the resulting certificate fingerprint matches the previously installed release.
 
-## Scope and known limits
+The hosted HTTPS edition uses explicit versioned service-worker updates. The portable and bundled Android editions do not fetch code from a host. Save format version and application release version are separate.
 
-This is a complete first playable build, not a claim of commercial-scale polish. It has no combat minigame, multiplayer, cloud sync, notifications, or app-store distribution. Expeditions are management decisions resolved by party strength, approach, and seeded chance. In-game time is deliberately compressed. The balance has automated opening-loop checks, but has not been validated by weeks of human playtesting. Older WebViews may need updating. No physical Android device was available in the authoring environment.
+## Limits and license
 
-## License
+This remains an independently built playable game, not a claim of commercial-scale polish. No multiplayer, action-combat minigame, cloud sync or app-store distribution. The v2 economy is intentionally a new balance pass and still needs human feedback. No physical Android phone was available in the authoring environment. Older WebViews may need updating.
 
-MIT. Original game code and art are in this repository; no Kairosoft assets or proprietary code are used. The genre reference informed the management/progression direction, not a recreation of a particular game.
+MIT. All art and code are original; no Kairosoft assets or proprietary code are used.

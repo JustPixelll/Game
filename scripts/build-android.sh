@@ -22,7 +22,7 @@ find "$B/classes" -name '*.class' -print > "$B/classes.txt"
 "$BT/d8" --lib "$SDK/platforms/android-35/android.jar" --min-api 26 --output "$B/dex" @"$B/classes.txt"
 cp "$B/base.apk" "$B/with-dex.apk"
 (cd "$B/dex" && zip -q "$B/with-dex.apk" classes*.dex)
-"$BT/zipalign" -P 16 -f 4 "$B/with-dex.apk" dist/android/Bramblehaven-v1.0.0-unsigned.apk
+"$BT/zipalign" -P 16 -f 4 "$B/with-dex.apk" dist/android/Bramblehaven-v2.0.0-unsigned.apk
 cp "$BT/lib/apksigner.jar" dist/android/apksigner.jar
-"$BT/aapt2" dump badging dist/android/Bramblehaven-v1.0.0-unsigned.apk > dist/android/APK-INFO.txt
+"$BT/aapt2" dump badging dist/android/Bramblehaven-v2.0.0-unsigned.apk > dist/android/APK-INFO.txt
 printf '\nAPK built. Sign with a private, stable key before installing.\n'
